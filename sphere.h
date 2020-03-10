@@ -9,11 +9,18 @@ class sphere: public hittable  {
         sphere() {}
         sphere(vec3 cen, double r, material *m) : center(cen), radius(r), mat_ptr(m)  {};
         virtual bool hit(const ray& r, double tmin, double tmax, hit_record& rec) const;
-        
+        virtual bool bounding_box(aabb& box) const;
+
         vec3 center;
         double radius;
         material *mat_ptr;
 };
+
+bool sphere::bounding_box(aabb& box) const {
+    box = aabb( center - vec3(radius, radius, radius), 
+                center + vec3(radius, radius, radius));
+    return true;
+}
 
 bool sphere::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
     vec3 oc = r.origin() - center;

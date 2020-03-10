@@ -1,0 +1,9 @@
+ns = 100
+200 x 100
+
+ball_sea();
+bvh = 70
+sah = 105
+normal = 280
+
+precious rng: unif(rng)
