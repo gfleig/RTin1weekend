@@ -34,9 +34,9 @@ hittable* ball_sea() {
 
     int idx = 0;
     for (int i = 0; i < 1023; i++) {
-        list[idx++] = new sphere(vec3(4.0*unif(rng) - 2.0, 2 * unif(rng) - 2, 4*unif(rng) - 2), 0.25, new lambertian(vec3(unif(rng) * unif(rng), 
-                                                                        unif(rng) * unif(rng), 
-                                                                        unif(rng) * unif(rng))));
+        list[idx++] = new sphere(vec3(4.0*MyRand() - 2.0, 2 * MyRand() - 2, 4*MyRand() - 2), 0.25, new lambertian(vec3(MyRand() * MyRand(), 
+                                                                        MyRand() * MyRand(), 
+                                                                        MyRand() * MyRand())));
     }
 
     //return new hittable_list(list,idx);
@@ -51,18 +51,18 @@ hittable* random_scene() {
     int i = 1;
     for (int a = -6; a < 6; a++) {
         for (int b = -6; b < 6; b++) {
-            double choose_mat = unif(rng);
-            vec3 center(a+0.9 * unif(rng), 4.0 * unif(rng), b+0.9*unif(rng));
+            double choose_mat = MyRand();
+            vec3 center(a+0.9 * MyRand(), 4.0 * MyRand(), b+0.9*MyRand());
             if (choose_mat < 0.8) {
-                list[i++] = new sphere(center, 0.2, new lambertian(vec3(unif(rng) * unif(rng), 
-                                                                        unif(rng) * unif(rng), 
-                                                                        unif(rng) * unif(rng))));
+                list[i++] = new sphere(center, 0.2, new lambertian(vec3(MyRand() * MyRand(), 
+                                                                        MyRand() * MyRand(), 
+                                                                        MyRand() * MyRand())));
             }
             else if (choose_mat < 0.95) {
-                list[i++] = new sphere(center, 0.2, new metal(vec3( unif(rng) * unif(rng), 
-                                                                    unif(rng) * unif(rng), 
-                                                                    unif(rng) * unif(rng)),
-                                                                    0.5 * unif(rng)));
+                list[i++] = new sphere(center, 0.2, new metal(vec3( MyRand() * MyRand(), 
+                                                                    MyRand() * MyRand(), 
+                                                                    MyRand() * MyRand()),
+                                                                    0.5 * MyRand()));
             }
             else {
                 list[i++] = new sphere(center, 0.2, new dielectric(1.5));
@@ -79,32 +79,21 @@ hittable* random_scene() {
 }
 
 int main() {
-    std::ofstream myfile;
-    myfile.open("output.ppm");
-    int nx = 200;
-    int ny = 100;
+    //std::ofstream myfile;
+    //myfile.open("output.ppm");
+    int nx = 600;
+    int ny = 300;
     int ns = 100;   // samples
-    myfile << "P3\n" << nx << " " << ny << "\n255\n";
+    vec3 *c = new vec3[nx * ny]; // <----------------------
+    //myfile << "P3\n" << nx << " " << ny << "\n255\n";
     
-    // rng
-    //std::mt19937_64 rng;
-    uint16_t timeSeed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-    std::seed_seq ss{uint32_t(timeSeed & 0xffffffff), uint32_t(timeSeed>>32)};
-    rng.seed(ss);
-    //std::uniform_real_distribution<double> unif(0, 1);      
-
-    /* obj list
-    hittable *list[4];
-    list[0] = new sphere(vec3(0,0,-1), 0.5, new lambertian(vec3(0.1, 0.2, 0.5)));
-    list[1] = new sphere(vec3(0,-100.5,-1), 100, new lambertian(vec3(0.8, 0.8, 0.0)));
-    list[2] = new sphere(vec3(1, 0, -1), 0.5, new metal(vec3(0.8, 0.6, 0.2), 0.3));
-    list[3] = new sphere(vec3(-1, 0, -1), 0.5, new dielectric(1.5));
-    list[4] = new sphere(vec3(-1, 0, -1), -0.45, new dielectric(1.5));
-    hittable *world = new hittable_list(list, 5); */
+    // rng    
+    //uint16_t timeSeed = std::chrono::high_resolution_clock::now().time_since_epoch().count(); // <-- + 2
+    //std::seed_seq ss{uint32_t(timeSeed & 0xffffffff), uint32_t(timeSeed>>32)};
+    //rng.seed(ss);        
 
     //hittable *world = random_scene();
-    hittable *world = ball_sea();
-    //hittable *world = bvh_test();
+    hittable *world = ball_sea();   
     
     // camera
     /* vec3 lookfrom(13,2,3);
@@ -118,29 +107,32 @@ int main() {
     double aperture = 0.0;
 
     camera cam(lookfrom, lookat, vec3(1,0,0), 90,
-           float(nx)/float(ny), aperture, dist_to_focus);
-
-    //vec3 col(0, 0, 0);  
-
+           float(nx)/float(ny), aperture, dist_to_focus);   
     
-    for (int j = ny-1; j >= 0; j--) {
-        for (int i = 0; i < nx; i++) {
-            vec3 col(0, 0, 0);        
-            //#pragma omp parallel for              
-            for (int s=0; s < ns; s++) {
-                double u = double(i + unif(rng)) / double(nx);
-                double v = double(j + unif(rng)) / double(ny);
+    int i;
+    vec3 col;
+
+    #pragma omp parallel for schedule(dynamic, 1) private(col)
+    for (int y = 0; y < ny; y++) {
+        for (int x = 0; x < nx; x++) {
+            //i = (ny - y - 1) * nx + x;
+            for (int s = 0; s < ns; s++) {               
+                double u = double(x + MyRand()) / double(nx);
+                double v = double(y + MyRand()) / double(ny);
                 ray r = cam.get_ray(u, v);
                 col += color(r, world,0);
             }
             col /= double(ns);
-            col = vec3( sqrt(col[0]), sqrt(col[1]), sqrt(col[2]) );
-            int ir = int(255.99*col[0]);
-            int ig = int(255.99*col[1]);
-            int ib = int(255.99*col[2]);
-            myfile << ir << " " << ig << " " << ib << "\n";
+            c[(ny - y - 1) * nx + x] = c[(ny - y - 1) * nx + x] + vec3(col[0], col[1], col[2]);
         }
     }
-    myfile.close();
+
+    FILE *f = fopen("image.ppm", "w"); // Write image to PPM file.
+    fprintf(f, "P3\n%d %d\n%d\n", nx, ny, 255);
+    for (int i = 0; i < nx * ny; i++) {
+        fprintf(f, "%d %d %d ", toInt(c[i].x()), toInt(c[i].y()), toInt(c[i].z()));
+    }
+
+    //myfile.close();
     return 0;
 }

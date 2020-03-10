@@ -7,6 +7,15 @@
 
 //#include "myrandom.h"
 
+// these 2 functions come from smallpt
+inline double clamp(double x) {
+  return x < 0 ? 0 : x > 1 ? 1 : x; 
+}
+
+inline int toInt(double x) { 
+  return int(pow(clamp(x), 1 / 2.2) * 255 + .5); 
+}
+
 class vec3 {
     public:
     vec3() {}

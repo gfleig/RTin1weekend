@@ -10,7 +10,7 @@
 vec3 random_in_unit_disk() {
     vec3 p;
     do {
-        p = 2.0 * vec3(unif(rng), unif(rng), 0) - vec3(1,1,0);
+        p = 2.0 * vec3(MyRand(), MyRand(), 0) - vec3(1,1,0);
     } while(dot(p, p) >= 1.0);
     return p;
 }

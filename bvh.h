@@ -61,7 +61,7 @@ int box_z_compare (const void * a, const void * b)
 
 // original book constructor
 /* bvh_node::bvh_node(hittable **l, int n) {
-    int axis = int(3 * unif(rng));
+    int axis = int(3 * MyRand());
 
     if (axis == 0)
         qsort(l,n, sizeof(hittable *), box_x_compare);

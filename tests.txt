@@ -6,4 +6,4 @@ bvh = 70
 sah = 105
 normal = 280
 
-precious rng: unif(rng)
+previous rng: unif(rng)
